@@ -49,7 +49,11 @@ export function FamilyDataProvider({ children }: { children: React.ReactNode }) 
       supabase.from("families").select("*").eq("id", profileRow.family_id).single(),
       supabase.from("profiles").select("*").eq("family_id", profileRow.family_id),
       supabase.from("kids").select("*").eq("family_id", profileRow.family_id).order("created_at"),
-      supabase.from("tasks").select("*").eq("family_id", profileRow.family_id).order("created_at"),
+      supabase
+        .from("tasks")
+        .select("*")
+        .eq("family_id", profileRow.family_id)
+        .order("created_at", { ascending: false }),
       supabase.from("task_kids").select("*"),
       supabase.from("rewards").select("*").eq("family_id", profileRow.family_id).order("created_at"),
     ]);
