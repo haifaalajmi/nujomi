@@ -21,6 +21,7 @@ export default function ParentHomePage() {
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [form, setForm] = useState<TaskInput>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [taskFormError, setTaskFormError] = useState<string | null>(null);
 
   const [showRewardForm, setShowRewardForm] = useState(false);
   const [rewardForm, setRewardForm] = useState({ name: "", cost: 20 });
@@ -34,18 +35,25 @@ export default function ParentHomePage() {
 
   const openNewTask = () => {
     setEditingTask(null);
+    setTaskFormError(null);
     setForm({ ...emptyForm, kidIds: activeKidId ? [activeKidId] : [] });
     setShowTaskForm(true);
   };
 
   const openEditTask = (task: Task) => {
     setEditingTask(task.id);
+    setTaskFormError(null);
     setForm({ name: task.name, icon: task.icon, points: task.points, recurrence: task.recurrence as TaskInput["recurrence"], kidIds: task.kidIds });
     setShowTaskForm(true);
   };
 
   const saveTask = async () => {
     if (!form.name.trim() || !profile?.family_id) return;
+    if (form.kidIds.length === 0) {
+      setTaskFormError("Select at least one kid for this task.");
+      return;
+    }
+    setTaskFormError(null);
     setSaving(true);
     try {
       if (editingTask) {
@@ -262,7 +270,9 @@ export default function ParentHomePage() {
               </div>
             </div>
 
-            <label className="text-xs font-bold text-slate-400">Assign to</label>
+            <label className="text-xs font-bold text-slate-400">
+              Assign to <span className="text-red-500">*</span>
+            </label>
             <div className="flex gap-2 mt-1.5 mb-2 flex-wrap">
               <button
                 onClick={() => setForm((f) => ({ ...f, kidIds: f.kidIds.length === kids.length ? [] : kids.map((k) => k.id) }))}
@@ -271,7 +281,7 @@ export default function ParentHomePage() {
                 {form.kidIds.length === kids.length ? "Clear all" : "Select all"}
               </button>
             </div>
-            <div className="flex gap-2 mb-5 flex-wrap">
+            <div className="flex gap-2 mb-2 flex-wrap">
               {kids.map((kid) => (
                 <button
                   key={kid.id}
@@ -283,12 +293,15 @@ export default function ParentHomePage() {
                   <span className="text-xs font-semibold text-[var(--color-ink)]">{kid.name}</span>
                 </button>
               ))}
+              {kids.length === 0 && <p className="text-slate-400 text-xs">Add a kid first before creating tasks.</p>}
             </div>
+
+            {taskFormError && <p className="text-red-500 text-xs font-semibold mb-3">{taskFormError}</p>}
 
             <button
               onClick={saveTask}
-              disabled={saving}
-              className="w-full py-3 rounded-xl bg-[var(--color-purple)] text-white font-bold text-sm disabled:opacity-60"
+              disabled={saving || form.kidIds.length === 0}
+              className="w-full py-3 mt-3 rounded-xl bg-[var(--color-purple)] text-white font-bold text-sm disabled:opacity-60"
             >
               {saving ? "Saving…" : editingTask ? "Save changes" : "Add task"}
             </button>
