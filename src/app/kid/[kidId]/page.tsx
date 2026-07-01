@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Check, Gift, Settings, Sparkles, Star, Trophy, X } from "lucide-react";
+import { ArrowLeft, Check, Gift, Settings, Sparkles, Star, Trophy, Upload, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useFamilyData } from "@/app/parent/family-data-context";
 import { Avatar } from "@/components/Avatar";
@@ -10,6 +10,7 @@ import { StarJar } from "@/components/StarJar";
 import { FlipTaskCard } from "@/components/FlipTaskCard";
 import { TILE_COLORS, AVATARS } from "@/lib/theme";
 import { KID_MODE_KEY } from "@/lib/kid-mode";
+import { isPhotoUrl, uploadAvatarPhoto } from "@/lib/avatar-upload";
 import { playAchievementSound, playNewTaskSound, playReminderSound, playTaskDoneSound } from "@/lib/sounds";
 
 const ONCE_SENTINEL_DATE = "2000-01-01";
@@ -49,6 +50,11 @@ export default function KidDetailPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [reminder, setReminder] = useState<string | null>(null);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState<string>("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [savingAvatar, setSavingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
   const seenTaskIds = useRef<Set<string> | null>(null);
 
@@ -169,8 +175,32 @@ export default function KidDetailPage() {
     router.push("/parent");
   };
 
-  const setAvatar = async (avatarKey: string) => {
-    await supabase.from("kids").update({ avatar: avatarKey }).eq("id", kid.id);
+  const openAvatarPicker = () => {
+    setSelectedAvatar(kid.avatar);
+    setAvatarError(null);
+    setShowAvatarPicker(true);
+  };
+
+  const onUploadAvatarPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !family?.id) return;
+    setUploadingAvatar(true);
+    setAvatarError(null);
+    try {
+      const url = await uploadAvatarPhoto(supabase, family.id, kid.id, file);
+      setSelectedAvatar(url);
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : "Couldn't upload photo.");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const saveAvatar = async () => {
+    setSavingAvatar(true);
+    await supabase.from("kids").update({ avatar: selectedAvatar }).eq("id", kid.id);
+    setSavingAvatar(false);
     setShowAvatarPicker(false);
   };
 
@@ -190,7 +220,7 @@ export default function KidDetailPage() {
         </div>
 
         <div className="flex items-center gap-4 mb-6">
-          <button onClick={() => setShowAvatarPicker(true)}>
+          <button onClick={openAvatarPicker}>
             <Avatar name={kid.name} avatar={kid.avatar} size={56} ring />
           </button>
           <div className="flex-1">
@@ -339,14 +369,43 @@ export default function KidDetailPage() {
               {AVATARS.map((a) => (
                 <button
                   key={a.key}
-                  onClick={() => setAvatar(a.key)}
+                  onClick={() => setSelectedAvatar(a.key)}
                   className="flex flex-col items-center gap-1.5 rounded-xl p-2 border"
-                  style={{ borderColor: kid.avatar === a.key ? "var(--color-purple)" : "#E6E1F2", borderWidth: kid.avatar === a.key ? 2 : 1 }}
+                  style={{ borderColor: selectedAvatar === a.key ? "var(--color-purple)" : "#E6E1F2", borderWidth: selectedAvatar === a.key ? 2 : 1 }}
                 >
                   <Avatar name={kid.name} avatar={a.key} size={48} />
                 </button>
               ))}
+              <button
+                onClick={() => avatarFileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="relative flex flex-col items-center justify-center gap-1.5 rounded-xl p-2 border disabled:opacity-60"
+                style={{
+                  borderColor: isPhotoUrl(selectedAvatar) ? "var(--color-purple)" : "#E6E1F2",
+                  borderWidth: isPhotoUrl(selectedAvatar) ? 2 : 1,
+                }}
+              >
+                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+                  <Upload size={18} color="var(--color-ink)" />
+                </div>
+                {isPhotoUrl(selectedAvatar) && (
+                  <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full overflow-hidden ring-2 ring-white">
+                    <Avatar name={kid.name} avatar={selectedAvatar} size={24} />
+                  </div>
+                )}
+              </button>
+              <input ref={avatarFileInputRef} type="file" accept="image/*" className="hidden" onChange={onUploadAvatarPhoto} />
             </div>
+            {uploadingAvatar && <p className="text-slate-400 text-xs mt-3">Uploading photo…</p>}
+            {avatarError && <p className="text-red-500 text-xs font-semibold mt-3">{avatarError}</p>}
+
+            <button
+              onClick={saveAvatar}
+              disabled={savingAvatar || uploadingAvatar || !selectedAvatar}
+              className="w-full py-3 mt-4 rounded-xl bg-[var(--color-purple)] text-white font-bold text-sm disabled:opacity-60"
+            >
+              {savingAvatar ? "Saving…" : "Save"}
+            </button>
           </div>
         </div>
       )}

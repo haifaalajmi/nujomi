@@ -1,13 +1,6 @@
 import { avatarColor } from "@/lib/theme";
-
-const EMOJI: Record<string, string> = {
-  "boy-1": "🧒",
-  "boy-2": "👦",
-  "boy-3": "🦸‍♂️",
-  "girl-1": "👧",
-  "girl-2": "🧑‍🦱",
-  "girl-3": "🦸‍♀️",
-};
+import { avatarUrl } from "@/lib/avatars";
+import { isPhotoUrl } from "@/lib/avatar-upload";
 
 export function Avatar({
   name,
@@ -21,6 +14,25 @@ export function Avatar({
   ring?: boolean;
 }) {
   const color = avatarColor(name || "kid");
+
+  if (avatar) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- remote image (DiceBear API or Supabase Storage), not a local/optimizable asset
+      <img
+        src={isPhotoUrl(avatar) ? avatar : avatarUrl(avatar)}
+        alt={name}
+        width={size}
+        height={size}
+        className="rounded-full shrink-0 bg-white/70 object-cover"
+        style={{
+          width: size,
+          height: size,
+          boxShadow: ring ? `0 0 0 3px #fff, 0 0 0 6px ${color}` : "none",
+        }}
+      />
+    );
+  }
+
   return (
     <div
       className="rounded-full flex items-center justify-center text-white font-bold shrink-0"
@@ -29,11 +41,11 @@ export function Avatar({
         height: size,
         background: color,
         fontFamily: "var(--font-display)",
-        fontSize: size * (avatar ? 0.55 : 0.42),
+        fontSize: size * 0.42,
         boxShadow: ring ? `0 0 0 3px #fff, 0 0 0 6px ${color}` : "none",
       }}
     >
-      {avatar && EMOJI[avatar] ? EMOJI[avatar] : name.charAt(0).toUpperCase()}
+      {name.charAt(0).toUpperCase()}
     </div>
   );
 }

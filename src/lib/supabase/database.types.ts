@@ -118,6 +118,53 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          family_id: string
+          id: string
+          invoice_id: number
+          paid_at: string | null
+          payment_id: string | null
+          reference: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          family_id: string
+          id?: string
+          invoice_id: number
+          paid_at?: string | null
+          payment_id?: string | null
+          reference: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          family_id?: string
+          id?: string
+          invoice_id?: number
+          paid_at?: string | null
+          payment_id?: string | null
+          reference?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       redemptions: {
         Row: {
           id: string
