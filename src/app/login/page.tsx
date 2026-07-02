@@ -3,8 +3,8 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { Logo } from "@/components/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,9 +32,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] px-4">
       <div className="w-full max-w-sm bg-[var(--color-panel)] rounded-3xl p-8 shadow-xl">
         <div className="flex items-center gap-2 mb-8">
-          <div className="w-9 h-9 rounded-xl bg-[var(--color-purple)] flex items-center justify-center">
-            <Sparkles size={18} color="#fff" />
-          </div>
+          <Logo size={36} />
           <span className="text-white text-xl" style={{ fontFamily: "var(--font-display)" }}>
             Nujomi
           </span>

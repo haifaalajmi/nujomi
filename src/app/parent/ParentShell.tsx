@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronRight, ListChecks, Sparkles, Trophy, Users, Settings, LogOut } from "lucide-react";
+import { ChevronRight, ListChecks, Trophy, Users, Settings, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useFamilyData } from "./family-data-context";
 import { KID_MODE_KEY } from "@/lib/kid-mode";
+import { Logo } from "@/components/Logo";
 
 const NAV = [
   { href: "/parent", label: "Tasks & Rewards", icon: ListChecks },
@@ -36,9 +37,7 @@ export function ParentShell({ children }: { children: React.ReactNode }) {
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-4 md:gap-0 md:min-h-[720px] bg-[var(--color-panel)] rounded-3xl overflow-hidden">
         <div className="w-full md:w-56 bg-[var(--color-panel-light)] border-b md:border-b-0 md:border-r border-white/10 p-5 flex md:flex-col gap-1">
           <div className="hidden md:flex items-center gap-2 mb-6 pl-1">
-            <div className="w-8 h-8 rounded-lg bg-[var(--color-purple)] flex items-center justify-center">
-              <Sparkles size={16} color="#fff" />
-            </div>
+            <Logo size={32} />
             <span className="text-white text-lg" style={{ fontFamily: "var(--font-display)" }}>
               Nujomi
             </span>

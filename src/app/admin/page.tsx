@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, Pause, Play, Sparkles, Users } from "lucide-react";
+import { LogOut, Pause, Play, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/database.types";
+import { Logo } from "@/components/Logo";
 
 type FamilyRow = Tables<"families"> & { parentCount: number; kidCount: number };
 
@@ -66,9 +67,7 @@ export default function AdminPage() {
     <div className="max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-[var(--color-purple)] flex items-center justify-center">
-            <Sparkles size={18} color="#fff" />
-          </div>
+          <Logo size={36} />
           <span className="text-white text-xl" style={{ fontFamily: "var(--font-display)" }}>
             Nujomi Admin
           </span>
