@@ -3,9 +3,10 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Sparkles, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { insertPendingKids, MAX_SIGNUP_KIDS, type PendingKid } from "@/lib/pending-kids";
+import { Logo } from "@/components/Logo";
 
 const emptyKid: PendingKid = { name: "", age: 6, gender: "boy" };
 
@@ -96,7 +97,9 @@ export default function SignupPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] px-4">
         <div className="w-full max-w-sm bg-[var(--color-panel)] rounded-3xl p-8 shadow-xl text-center">
-          <Sparkles size={32} color="#fff" className="mx-auto mb-4" />
+          <div className="flex justify-center mb-4">
+            <Logo size={56} />
+          </div>
           <h1 className="text-white text-xl mb-2" style={{ fontFamily: "var(--font-display)" }}>
             Check your email
           </h1>
@@ -113,9 +116,7 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] px-4 py-10">
       <div className="w-full max-w-sm bg-[var(--color-panel)] rounded-3xl p-8 shadow-xl">
         <div className="flex items-center gap-2 mb-6">
-          <div className="w-9 h-9 rounded-xl bg-[var(--color-purple)] flex items-center justify-center">
-            <Sparkles size={18} color="#fff" />
-          </div>
+          <Logo size={36} />
           <span className="text-white text-xl" style={{ fontFamily: "var(--font-display)" }}>
             Nujomi
           </span>
